@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../core/app_colors.dart';
 
 /// Kartu bersudut bulat dengan bayangan lembut (dipakai di Dashboard).
 class KartuSomniva extends StatelessWidget {
