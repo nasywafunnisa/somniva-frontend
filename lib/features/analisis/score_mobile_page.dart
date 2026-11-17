@@ -5,8 +5,9 @@ import '../../core/format_tanggal.dart';
 import '../../core/store_tidur.dart';
 import '../../shared/kartu_somniva.dart';
 import '../../shared/ring_skor.dart';
-import '../../shared/util.dart';
 import 'daftar_faktor.dart';
+import 'grafik_riwayat_page.dart';
+import 'pola_mobile_page.dart';
 import 'sleep_debt_page.dart';
 
 /// Sleep Score untuk HP (desain: Mobile App UI 05). Tab "Analisis".
@@ -128,11 +129,19 @@ class ScoreMobilePage extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: _tombolGaris('Pola & Korelasi', () {
-                  tampilkanSegera(context, 'Pola & Korelasi');
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const PolaMobilePage()),
+                  );
                 }),
               ),
             ],
           ),
+          const SizedBox(height: 12),
+          _tombolGaris('Grafik & Riwayat', () {
+            Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const GrafikRiwayatPage()),
+            );
+          }),
           const SizedBox(height: 14),
           const Text(
             'Skor dihitung dari kebiasaan yang kamu catat. Hanya indikator edukatif, bukan hasil medis.',

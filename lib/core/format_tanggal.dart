@@ -19,6 +19,16 @@ class FormatTanggal {
     return tahun ? '$dasar ${d.year}' : dasar;
   }
 
+  static const List<String> _bulanPendek = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul',
+    'Agu', 'Sep', 'Okt', 'Nov', 'Des',
+  ];
+
+  /// Contoh: "Selasa, 10 Nov"
+  static String ringkas(DateTime d) {
+    return '${_hari[d.weekday - 1]}, ${d.day} ${_bulanPendek[d.month - 1]}';
+  }
+
   /// Contoh: "Kam"
   static String hariPendek(DateTime d) => _hariPendek[d.weekday - 1];
 

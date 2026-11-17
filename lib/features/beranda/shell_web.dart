@@ -4,6 +4,15 @@ import '../../core/data_contoh.dart';
 import '../../shared/halaman_segera.dart';
 import '../../shared/logo_somniva.dart';
 import '../auth/login_page.dart';
+import '../../core/nav_app.dart';
+import '../analisis/grafik_riwayat_web.dart';
+import '../analisis/pola_web.dart';
+import '../edukasi/edukasi_web.dart';
+import '../ekspor/ekspor_web.dart';
+import '../profil/profil_web.dart';
+import '../../core/store_profil.dart';
+import '../rekomendasi/rekomendasi_web.dart';
+import '../program/program_web.dart';
 import '../analisis/score_debt_web.dart';
 import 'dashboard_web.dart';
 
@@ -23,6 +32,25 @@ class ShellWeb extends StatefulWidget {
 
 class _ShellWebState extends State<ShellWeb> {
   int _terpilih = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    NavApp.menuWeb.addListener(_dariLuar);
+  }
+
+  @override
+  void dispose() {
+    NavApp.menuWeb.removeListener(_dariLuar);
+    super.dispose();
+  }
+
+  void _dariLuar() {
+    final v = NavApp.menuWeb.value;
+    if (v == null) return;
+    NavApp.menuWeb.value = null;
+    if (mounted) setState(() => _terpilih = v);
+  }
 
   static const List<_MenuWeb> _menu = [
     _MenuWeb('Dashboard', Icons.home_outlined),
@@ -71,6 +99,20 @@ class _ShellWebState extends State<ShellWeb> {
         );
       case 1:
         return gulir(const ScoreDebtWeb());
+      case 2:
+        return gulir(const PolaWeb());
+      case 3:
+        return gulir(const GrafikRiwayatWeb());
+      case 4:
+        return gulir(const RekomendasiWeb());
+      case 5:
+        return gulir(const ProgramWeb());
+      case 6:
+        return gulir(const EdukasiWeb());
+      case 7:
+        return gulir(const EksporWeb());
+      case 8:
+        return gulir(const ProfilWeb());
       default:
         return HalamanSegera(judul: _menu[_terpilih].nama);
     }
@@ -154,6 +196,13 @@ class _ShellWebState extends State<ShellWeb> {
   }
 
   Widget _kartuPengguna() {
+    return ListenableBuilder(
+      listenable: StoreProfil.instance,
+      builder: (context, _) => _isiKartuPengguna(),
+    );
+  }
+
+  Widget _isiKartuPengguna() {
     return Material(
       color: AppColors.krim,
       borderRadius: BorderRadius.circular(20),

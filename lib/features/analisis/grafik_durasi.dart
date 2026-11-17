@@ -9,12 +9,16 @@ class GrafikDurasi extends StatelessWidget {
   final int targetJam;
   final double tinggi;
 
+  /// false = angka di atas batang disembunyikan (dipakai saat batangnya banyak).
+  final bool tampilNilai;
+
   const GrafikDurasi({
     super.key,
     required this.menit,
     required this.label,
     required this.targetJam,
     this.tinggi = 290,
+    this.tampilNilai = true,
   });
 
   @override
@@ -23,7 +27,7 @@ class GrafikDurasi extends StatelessWidget {
       height: tinggi,
       child: CustomPaint(
         size: Size.infinite,
-        painter: _DurasiPainter(menit, label, targetJam),
+        painter: _DurasiPainter(menit, label, targetJam, tampilNilai),
       ),
     );
   }
@@ -33,7 +37,8 @@ class _DurasiPainter extends CustomPainter {
   final List<int> menit;
   final List<String> label;
   final int targetJam;
-  _DurasiPainter(this.menit, this.label, this.targetJam);
+  final bool tampilNilai;
+  _DurasiPainter(this.menit, this.label, this.targetJam, this.tampilNilai);
 
   void _teks(Canvas canvas, String t, Offset titik,
       {double ukuran = 13,
@@ -72,7 +77,7 @@ class _DurasiPainter extends CustomPainter {
     double yDari(double jam) => dasar - plotH * (jam / skalaMax);
 
     final slot = size.width / menit.length;
-    final lebarBatang = slot * 0.62;
+    final lebarBatang = tampilNilai ? slot * 0.62 : slot * 0.7;
 
     // Batang
     for (var i = 0; i < menit.length; i++) {
@@ -91,9 +96,11 @@ class _DurasiPainter extends CustomPainter {
         rect,
         Paint()..color = capai ? AppColors.hijauSedang : AppColors.cokelat,
       );
-      _teks(canvas, jam.toStringAsFixed(1), Offset(cx, y - 12),
-          ukuran: 13.5, berat: FontWeight.w800, warna: AppColors.hijauGelap);
-      if (i < label.length) {
+      if (tampilNilai) {
+        _teks(canvas, jam.toStringAsFixed(1), Offset(cx, y - 12),
+            ukuran: 13.5, berat: FontWeight.w800, warna: AppColors.hijauGelap);
+      }
+      if (i < label.length && label[i].isNotEmpty) {
         _teks(canvas, label[i], Offset(cx, size.height - bawah + 16));
       }
     }
@@ -114,5 +121,8 @@ class _DurasiPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _DurasiPainter old) =>
-      old.menit != menit || old.label != label || old.targetJam != targetJam;
+      old.menit != menit ||
+      old.label != label ||
+      old.targetJam != targetJam ||
+      old.tampilNilai != tampilNilai;
 }

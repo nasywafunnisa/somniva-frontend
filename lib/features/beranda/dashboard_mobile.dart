@@ -6,8 +6,16 @@ import '../../shared/kartu_somniva.dart';
 import '../../shared/ring_skor.dart';
 import '../../shared/tombol_somniva.dart';
 import '../../core/entri_tidur.dart';
+import '../../core/store_program.dart';
 import '../../core/store_tidur.dart';
-import '../../shared/util.dart';
+import '../../core/rekomendasi.dart';
+import '../../core/store_pengingat.dart';
+import '../../core/store_winddown.dart';
+import '../edukasi/edukasi_page.dart';
+import '../ekspor/ekspor_page.dart';
+import '../pengingat/wind_down_page.dart';
+import '../relaksasi/latihan_relaksasi_page.dart';
+import '../rekomendasi/rekomendasi_page.dart';
 
 /// Isi Dashboard untuk tampilan HP (desain: Mobile App UI 03 Dashboard).
 class DashboardMobile extends StatelessWidget {
@@ -16,16 +24,21 @@ class DashboardMobile extends StatelessWidget {
 
   /// Dipanggil saat kartu Sleep Score ditekan.
   final VoidCallback onLihatSkor;
+
+  /// Dipanggil saat kartu Program 14 Hari ditekan.
+  final VoidCallback onLihatProgram;
   const DashboardMobile({
     super.key,
     required this.onCatat,
     required this.onLihatSkor,
+    required this.onLihatProgram,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: StoreTidur.instance,
+      listenable:
+          Listenable.merge([StoreTidur.instance, StoreProgram.instance]),
       builder: (context, _) => _isi(context),
     );
   }
@@ -56,27 +69,52 @@ class DashboardMobile extends StatelessWidget {
                     children: [
                       Expanded(child: _kartuDebt()),
                       const SizedBox(width: 14),
-                      Expanded(child: _kartuIdeal()),
+                      Expanded(child: _kartuIdeal(context)),
                     ],
                   ),
                 ),
                 const SizedBox(height: 14),
-                _kartuProgram(),
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: onLihatProgram,
+                  child: _kartuProgram(),
+                ),
                 const SizedBox(height: 14),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _Pil('Wind-down 2/4', () {
-                      tampilkanSegera(context, 'Wind-down Routine');
-                    }),
-                    _Pil('Napas & relaksasi', () {
-                      tampilkanSegera(context, 'Latihan Relaksasi');
-                    }),
-                    _Pil('Edukasi', () {
-                      tampilkanSegera(context, 'Edukasi Tidur');
-                    }),
-                  ],
+                ListenableBuilder(
+                  listenable: StoreWindDown.instance,
+                  builder: (context, _) => Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      _Pil(
+                        'Wind-down ${StoreWindDown.instance.jumlah}/${StoreWindDown.instance.total}',
+                        () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (_) => const WindDownPage()),
+                          );
+                        },
+                      ),
+                      _Pil('Napas & relaksasi', () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const LatihanRelaksasiPage(),
+                          ),
+                        );
+                      }),
+                      _Pil('Edukasi', () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                              builder: (_) => const EdukasiPage()),
+                        );
+                      }),
+                      _Pil('Ekspor PDF', () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const EksporPage()),
+                        );
+                      }),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -227,15 +265,30 @@ class DashboardMobile extends StatelessWidget {
     );
   }
 
-  Widget _kartuIdeal() {
-    return const KartuSomniva(
-      warna: AppColors.krim,
-      radius: 26,
-      padding: EdgeInsets.fromLTRB(18, 18, 18, 18),
-      child: _IsiKecil(
-        label: 'Tidur ideal malam ini',
-        nilai: DataContoh.tidurIdeal,
-        ket: 'Pengingat ${DataContoh.pengingat}',
+  Widget _kartuIdeal(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const RekomendasiPage()),
+        );
+      },
+      child: KartuSomniva(
+        warna: AppColors.krim,
+        radius: 26,
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 18),
+        child: ListenableBuilder(
+          listenable: StorePengingat.instance,
+          builder: (context, _) {
+            final p = StorePengingat.instance;
+            return _IsiKecil(
+              label: 'Tidur ideal malam ini',
+              nilai: Rekomendasi.jam(p.tidurMenit),
+              ket: p.windDownAktif
+                  ? 'Pengingat ${Rekomendasi.jam(p.windDownMenit)}'
+                  : 'Pengingat mati',
+            );
+          },
+        ),
       ),
     );
   }
@@ -247,7 +300,7 @@ class DashboardMobile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
@@ -259,7 +312,7 @@ class DashboardMobile extends StatelessWidget {
                 ),
               ),
               Text(
-                'Hari ${DataContoh.programHari} dari ${DataContoh.programTotal}',
+                'Hari ${StoreProgram.instance.hariAktif} dari ${StoreProgram.total}',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -269,9 +322,9 @@ class DashboardMobile extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          const Text(
-            'Hari ini: ${DataContoh.programHariIni}',
-            style: TextStyle(
+          Text(
+            'Hari ini: ${StoreProgram.instance.judulHariIni.toLowerCase()}',
+            style: const TextStyle(
               fontSize: 14.5,
               fontWeight: FontWeight.w500,
               color: AppColors.teksSekunder,
@@ -281,7 +334,7 @@ class DashboardMobile extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
-              value: DataContoh.programHari / DataContoh.programTotal,
+              value: StoreProgram.instance.hariAktif / StoreProgram.total,
               minHeight: 8,
               backgroundColor: AppColors.hijauMuda,
               valueColor: const AlwaysStoppedAnimation(AppColors.hijauSedang),

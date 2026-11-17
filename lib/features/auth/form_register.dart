@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/store_profil.dart';
 import '../../core/app_colors.dart';
 import '../../core/validator.dart';
 import '../../shared/kolom_teks_somniva.dart';
@@ -45,6 +46,11 @@ class _FormRegisterState extends State<FormRegister> {
     }
     if (!formOk || !_setuju) return;
 
+    StoreProfil.instance.simpanProfil(
+      nama: _nama.text.trim(),
+      email: _email.text.trim(),
+      targetJam: _targetJam,
+    );
     // Sementara belum ada server: pendaftaran dianggap berhasil.
     // Nama dan target tidur nanti disimpan ke database.
     Navigator.of(context).pushAndRemoveUntil(

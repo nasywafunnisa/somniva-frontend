@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/store_profil.dart';
 import '../../core/app_colors.dart';
 import '../../core/validator.dart';
 import '../../shared/kolom_teks_somniva.dart';
@@ -44,6 +45,7 @@ class _FormLoginState extends State<FormLogin> {
 
   void _masuk() {
     if (!_kunci.currentState!.validate()) return;
+    StoreProfil.instance.simpanProfil(email: _email.text.trim());
     // Sementara belum ada server: login dianggap berhasil.
     // Nanti diganti dengan pengecekan ke PHP + MySQL.
     Navigator.of(context).pushAndRemoveUntil(

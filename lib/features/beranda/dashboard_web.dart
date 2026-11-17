@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import '../../core/store_tema.dart';
 import '../../core/app_colors.dart';
 import '../../core/data_contoh.dart';
 import '../../core/format_tanggal.dart';
 import '../../shared/kartu_somniva.dart';
 import '../../shared/tombol_somniva.dart';
-import '../../shared/util.dart';
 import '../../core/entri_tidur.dart';
+import '../../core/korelasi.dart';
+import '../../core/store_program.dart';
 import '../../core/store_tidur.dart';
 import '../jurnal/jurnal_web_page.dart';
 import 'grafik_skor.dart';
@@ -19,7 +21,8 @@ class DashboardWeb extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: StoreTidur.instance,
+      listenable:
+          Listenable.merge([StoreTidur.instance, StoreProgram.instance]),
       builder: (context, _) => _isi(context),
     );
   }
@@ -117,9 +120,9 @@ class DashboardWeb extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 6),
-              const Text(
+              Text(
                 DataContoh.tidurIdeal,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 54,
                   fontWeight: FontWeight.w800,
                   height: 1.1,
@@ -127,9 +130,9 @@ class DashboardWeb extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Bangun ${DataContoh.bangunIdeal} · target ${DataContoh.targetJam} jam',
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                   color: AppColors.hijauGelap,
@@ -138,18 +141,18 @@ class DashboardWeb extends StatelessWidget {
               const SizedBox(height: 18),
               TombolUtama(
                 teks: 'Lihat rekomendasi',
-                onTap: () => tampilkanSegera(context, 'Rekomendasi Tidur'),
+                onTap: () => onPindah(4), // 4 = Rekomendasi Tidur
               ),
             ],
           ),
         );
 
-        final kartuProgram = KartuSomniva(
+        final kartuProgramIsi = KartuSomniva(
           radius: 28,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
@@ -161,7 +164,7 @@ class DashboardWeb extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Hari ${DataContoh.programHari}',
+                    'Hari ${StoreProgram.instance.hariAktif}',
                     style: TextStyle(
                       fontSize: 14.5,
                       fontWeight: FontWeight.w500,
@@ -174,7 +177,7 @@ class DashboardWeb extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: LinearProgressIndicator(
-                  value: DataContoh.programHari / DataContoh.programTotal,
+                  value: StoreProgram.instance.hariAktif / StoreProgram.total,
                   minHeight: 8,
                   backgroundColor: AppColors.hijauMuda,
                   valueColor:
@@ -182,15 +185,25 @@ class DashboardWeb extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
-                'Hari ini: ${DataContoh.programHariIni}',
-                style: TextStyle(
+              Text(
+                'Hari ini: ${StoreProgram.instance.judulHariIni.toLowerCase()}',
+                style: const TextStyle(
                   fontSize: 14.5,
                   fontWeight: FontWeight.w500,
                   color: AppColors.hijauGelap,
                 ),
               ),
             ],
+          ),
+        );
+
+        // Kartu program bisa diketuk untuk membuka halaman Program 14 Hari.
+        final kartuProgram = MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => onPindah(5),
+            child: kartuProgramIsi,
           ),
         );
 
@@ -327,7 +340,7 @@ class DashboardWeb extends StatelessWidget {
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
-            onTap: () => tampilkanSegera(context, 'Mode gelap'),
+            onTap: StoreTema.instance.balik,
             child: const SizedBox(
               width: 46,
               height: 46,
@@ -360,9 +373,9 @@ class DashboardWeb extends StatelessWidget {
         ),
       );
 
-  Widget _isiTemuan() => const Text(
-        DataContoh.temuan,
-        style: TextStyle(
+  Widget _isiTemuan() => Text(
+        Korelasi.temuan(StoreTidur.instance.riwayat),
+        style: const TextStyle(
           fontSize: 14.5,
           fontWeight: FontWeight.w500,
           height: 1.45,
@@ -374,7 +387,7 @@ class DashboardWeb extends StatelessWidget {
     return SizedBox(
       height: 50,
       child: OutlinedButton(
-        onPressed: () => tampilkanSegera(context, 'Pola & Korelasi'),
+        onPressed: () => onPindah(2), // 2 = Pola & Korelasi
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.hijauGelap,
           side: const BorderSide(color: AppColors.hijauSedang, width: 1.6),

@@ -1,9 +1,13 @@
+import 'store_profil.dart';
+
 /// Data CONTOH untuk tampilan. Nanti diganti data asli dari database.
 class DataContoh {
   DataContoh._();
 
-  static const String namaDepan = 'Sari';
-  static const String namaLengkap = 'Sari Wulandari';
+  // Nama, jam bangun, dan target tidur kini diambil dari StoreProfil
+  // (bisa diubah di halaman Profil).
+  static String get namaDepan => StoreProfil.instance.namaDepan;
+  static String get namaLengkap => StoreProfil.instance.nama;
 
   static const int skor = 82;
   static const int skorKemarin = 78;
@@ -19,10 +23,22 @@ class DataContoh {
   /// Sleep Score 7 hari terakhir, urutan dari yang terlama ke hari ini.
   static const List<int> skorMingguan = [79, 71, 77, 88, 80, 74, 82];
 
-  static const String tidurIdeal = '22:30';
-  static const String bangunIdeal = '06:30';
-  static const int targetJam = 8;
+  static String get tidurIdeal {
+    final p = StoreProfil.instance;
+    return _jam(p.bangunMenit - p.targetJam * 60);
+  }
+
+  static String get bangunIdeal => _jam(StoreProfil.instance.bangunMenit);
+  static int get targetJam => StoreProfil.instance.targetJam;
+
+  static String _jam(int menit) {
+    final m = ((menit % 1440) + 1440) % 1440;
+    return '${(m ~/ 60).toString().padLeft(2, '0')}:${(m % 60).toString().padLeft(2, '0')}';
+  }
   static const String pengingat = '22:00';
+
+  /// Kenaikan skor rata-rata selama program (CONTOH, belum dihitung).
+  static const int programNaikSkor = 6;
 
   static const int programHari = 5;
   static const int programTotal = 14;

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
+import '../../core/nav_app.dart';
 import '../../core/data_contoh.dart';
 import '../../core/store_tidur.dart';
 import '../../shared/kartu_somniva.dart';
 import '../../shared/tombol_somniva.dart';
-import '../../shared/util.dart';
 import 'blok_debt.dart';
 
 /// Sleep Debt untuk HP (desain: Mobile App UI 06). Dibuka dari Sleep Score.
@@ -102,7 +102,10 @@ class SleepDebtPage extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(22, 8, 22, 18),
                     child: TombolUtama(
                       teks: 'Mulai Program 14 Hari',
-                      onTap: () => tampilkanSegera(context, 'Program 14 Hari'),
+                      onTap: () {
+                        NavApp.tabHp.value = 3; // tab Program
+                        Navigator.of(context).popUntil((r) => r.isFirst);
+                      },
                     ),
                   ),
                 ],

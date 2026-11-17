@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
 import '../../shared/halaman_segera.dart';
+import '../../core/nav_app.dart';
 import '../analisis/score_mobile_page.dart';
+import '../program/program_mobile.dart';
 import '../jurnal/jurnal_tidur_isi.dart';
+import '../profil/profil_page.dart';
 import 'dashboard_mobile.dart';
 
 class _TabHp {
@@ -21,6 +24,26 @@ class ShellMobile extends StatefulWidget {
 
 class _ShellMobileState extends State<ShellMobile> {
   int _terpilih = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    NavApp.tabHp.addListener(_dariLuar);
+  }
+
+  @override
+  void dispose() {
+    NavApp.tabHp.removeListener(_dariLuar);
+    super.dispose();
+  }
+
+  /// Dipanggil kalau halaman lain meminta pindah tab.
+  void _dariLuar() {
+    final v = NavApp.tabHp.value;
+    if (v == null) return;
+    NavApp.tabHp.value = null;
+    if (mounted) setState(() => _terpilih = v);
+  }
 
   static const List<_TabHp> _tab = [
     _TabHp('Beranda', Icons.home_outlined),
@@ -53,6 +76,7 @@ class _ShellMobileState extends State<ShellMobile> {
         return DashboardMobile(
           onCatat: () => setState(() => _terpilih = 1),
           onLihatSkor: () => setState(() => _terpilih = 2),
+          onLihatProgram: () => setState(() => _terpilih = 3),
         );
       case 1:
         // Setelah simpan, langsung lihat Sleep Score (tab Analisis).
@@ -63,6 +87,10 @@ class _ShellMobileState extends State<ShellMobile> {
         return ScoreMobilePage(
           onKembali: () => setState(() => _terpilih = 0),
         );
+      case 3:
+        return const ProgramMobile();
+      case 4:
+        return const ProfilTab();
       default:
         return HalamanSegera(judul: _tab[_terpilih].nama);
     }

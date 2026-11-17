@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../core/store_tema.dart';
 import '../../core/app_colors.dart';
 import '../../core/data_contoh.dart';
+import '../../core/nav_app.dart';
 import '../../core/format_tanggal.dart';
 import '../../core/store_tidur.dart';
 import '../../shared/kartu_somniva.dart';
 import '../../shared/ring_skor.dart';
-import '../../shared/util.dart';
 import 'blok_debt.dart';
 import 'daftar_faktor.dart';
 
@@ -193,7 +194,7 @@ class ScoreDebtWeb extends StatelessWidget {
         SizedBox(
           height: 50,
           child: OutlinedButton(
-            onPressed: () => tampilkanSegera(context, 'Ekspor PDF'),
+            onPressed: () => NavApp.menuWeb.value = 7,
             style: OutlinedButton.styleFrom(
               foregroundColor: AppColors.hijauGelap,
               side: const BorderSide(color: AppColors.hijauSedang, width: 1.6),
@@ -214,7 +215,7 @@ class ScoreDebtWeb extends StatelessWidget {
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
-            onTap: () => tampilkanSegera(context, 'Mode gelap'),
+            onTap: StoreTema.instance.balik,
             child: const SizedBox(
               width: 46,
               height: 46,

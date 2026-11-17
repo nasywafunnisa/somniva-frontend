@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/app_colors.dart';
+import '../../core/store_tema.dart';
 import 'ilustrasi_gelombang.dart';
 
 /// Kerangka halaman Masuk/Daftar untuk tampilan WEB (layar lebar):
@@ -180,15 +181,7 @@ class _PanelKanan extends StatelessWidget {
                     shape: const CircleBorder(),
                     child: InkWell(
                       customBorder: const CircleBorder(),
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content:
-                                Text('Mode gelap akan ditambahkan nanti.'),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
+                      onTap: StoreTema.instance.balik,
                       child: const SizedBox(
                         width: 44,
                         height: 44,
