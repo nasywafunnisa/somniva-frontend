@@ -11,7 +11,6 @@ import '../../shared/util.dart';
 import '../auth/login_page.dart';
 import '../ekspor/bagian_ekspor.dart';
 
-const Color _garis = Color(0xFFEFEADC);
 const Color _cokeltTua = Color(0xFF8A5A36);
 
 void _pesan(BuildContext context, String teks) {
@@ -122,7 +121,7 @@ class _FormProfilState extends State<FormProfil> {
                     const EdgeInsets.symmetric(horizontal: 18, vertical: 17),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: _garis, width: 1.5),
+                  border: Border.all(color: AppColors.hijauPastel, width: 1.5),
                 ),
                 child: Row(
                   children: [
@@ -278,7 +277,7 @@ class DaftarIzinData extends StatelessWidget {
   }
 }
 
-/// Tombol "Hapus akun & semua data" (garis cokelat).
+/// Tombol "Hapus akun & semua data" (gaya sama dengan TombolGarisKecil).
 class TombolHapusAkun extends StatelessWidget {
   const TombolHapusAkun({super.key});
 
@@ -289,8 +288,8 @@ class TombolHapusAkun extends StatelessWidget {
       child: OutlinedButton(
         onPressed: () => AksiPrivasi.hapusAkun(context),
         style: OutlinedButton.styleFrom(
-          foregroundColor: _cokeltTua,
-          side: const BorderSide(color: AppColors.cokelat, width: 1.8),
+          foregroundColor: AppColors.hijauGelap,
+          side: const BorderSide(color: AppColors.hijauSedang, width: 1.6),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
           ),
