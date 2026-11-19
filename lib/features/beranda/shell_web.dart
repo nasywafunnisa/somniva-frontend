@@ -33,6 +33,14 @@ class ShellWeb extends StatefulWidget {
 class _ShellWebState extends State<ShellWeb> {
   int _terpilih = 0;
 
+  /// Sidebar melebar (true) atau ramping (false). Pilihan pengguna.
+  bool _lebar = true;
+
+  /// Di bawah lebar layar ini sidebar otomatis ramping supaya konten lega.
+  static const double _batasOtomatis = 1100;
+  static const double _lebarTerbuka = 252;
+  static const double _lebarRamping = 84;
+
   @override
   void initState() {
     super.initState();
@@ -75,13 +83,17 @@ class _ShellWebState extends State<ShellWeb> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.krimTerang,
-      body: Row(
-        children: [
-          _sidebar(),
-          Expanded(
-            child: _isi(),
-          ),
-        ],
+      body: LayoutBuilder(
+        builder: (context, box) {
+          final lebar = _lebar && box.maxWidth >= _batasOtomatis;
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _sidebar(lebar, box.maxWidth >= _batasOtomatis),
+              Expanded(child: _isi()),
+            ],
+          );
+        },
       ),
     );
   }
@@ -118,115 +130,282 @@ class _ShellWebState extends State<ShellWeb> {
     }
   }
 
-  Widget _sidebar() {
-    return Container(
-      width: 252,
-      color: Colors.white,
-      padding: const EdgeInsets.fromLTRB(16, 26, 16, 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(left: 8),
-            child: Row(
-              children: [
-                IkonBulan(ukuran: 34),
-                SizedBox(width: 12),
-                Text(
-                  'Somniva',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.hijauGelap,
-                  ),
-                ),
-              ],
-            ),
+  /// Sidebar mengambang: jarak dari tepi layar, sudut membulat,
+  /// dan bisa melebar / meramping dengan animasi.
+  Widget _sidebar(bool lebar, bool bolehToggle) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 260),
+      curve: Curves.easeInOutCubic,
+      width: lebar ? _lebarTerbuka : _lebarRamping,
+      margin: const EdgeInsets.fromLTRB(16, 16, 0, 16),
+      padding: const EdgeInsets.fromLTRB(12, 22, 12, 14),
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: const Color(0xFFEFEADC), width: 1),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x142F3A2B),
+            blurRadius: 28,
+            offset: Offset(0, 10),
           ),
-          const SizedBox(height: 22),
-          Expanded(
-            child: ListView.separated(
-              itemCount: _menu.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 4),
-              itemBuilder: (context, i) => _itemMenu(i),
-            ),
+          BoxShadow(
+            color: Color(0x0A2F3A2B),
+            blurRadius: 6,
+            offset: Offset(0, 2),
           ),
-          _kartuPengguna(),
         ],
+      ),
+      child: LayoutBuilder(
+        builder: (context, box) {
+          // Teks baru ditampilkan setelah sidebar cukup lebar,
+          // supaya tidak overflow di tengah animasi.
+          final teks = box.maxWidth > 150;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _kepala(teks, lebar, bolehToggle),
+              const SizedBox(height: 18),
+              Expanded(
+                child: ListView.separated(
+                  padding: EdgeInsets.zero,
+                  itemCount: _menu.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 4),
+                  itemBuilder: (context, i) => _itemMenu(i, teks),
+                ),
+              ),
+              const SizedBox(height: 10),
+              _kartuPengguna(teks),
+            ],
+          );
+        },
       ),
     );
   }
 
-  Widget _itemMenu(int i) {
-    final aktif = i == _terpilih;
-    final m = _menu[i];
-    return Material(
-      color: aktif ? AppColors.hijauPastel : Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => setState(() => _terpilih = i),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-          child: Row(
-            children: [
-              Icon(
-                m.ikon,
-                size: 21,
-                color: aktif ? AppColors.hijauGelap : AppColors.teksSekunder,
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  m.nama,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: aktif ? FontWeight.w700 : FontWeight.w500,
-                    color:
-                        aktif ? AppColors.hijauGelap : AppColors.teksSekunder,
+  Widget _kepala(bool teks, bool lebar, bool bolehToggle) {
+    final tombol = bolehToggle
+        ? Tooltip(
+            message: lebar ? 'Perkecil sidebar' : 'Perlebar sidebar',
+            waitDuration: const Duration(milliseconds: 250),
+            child: Material(
+              color: AppColors.krim,
+              borderRadius: BorderRadius.circular(12),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                hoverColor: AppColors.hijauMuda,
+                onTap: () => setState(() => _lebar = !_lebar),
+                child: SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: Icon(
+                    lebar
+                        ? Icons.keyboard_double_arrow_left_rounded
+                        : Icons.keyboard_double_arrow_right_rounded,
+                    size: 20,
+                    color: AppColors.hijauGelap,
                   ),
                 ),
               ),
+            ),
+          )
+        : const SizedBox.shrink();
+
+    if (!teks) {
+      return Column(
+        children: [
+          const Center(child: IkonBulan(ukuran: 34)),
+          if (bolehToggle) const SizedBox(height: 12),
+          tombol,
+        ],
+      );
+    }
+    return Row(
+      children: [
+        const SizedBox(width: 4),
+        const IkonBulan(ukuran: 34),
+        const SizedBox(width: 10),
+        const Expanded(
+          child: Text(
+            'Somniva',
+            maxLines: 1,
+            overflow: TextOverflow.clip,
+            softWrap: false,
+            style: TextStyle(
+              fontSize: 23,
+              fontWeight: FontWeight.w700,
+              color: AppColors.hijauGelap,
+            ),
+          ),
+        ),
+        tombol,
+      ],
+    );
+  }
+
+  Widget _itemMenu(int i, bool teks) {
+    final aktif = i == _terpilih;
+    final m = _menu[i];
+
+    final isi = Material(
+      color: aktif ? AppColors.hijauPastel : AppColors.hijauPastel.withAlpha(0),
+      borderRadius: BorderRadius.circular(18),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        hoverColor:
+            aktif ? AppColors.hijauPastel.withAlpha(0) : AppColors.hijauMuda,
+        splashColor: AppColors.hijauPastel.withAlpha(120),
+        highlightColor: AppColors.hijauPastel.withAlpha(0),
+        focusColor: AppColors.hijauPastel.withAlpha(0),
+        onTap: () => setState(() => _terpilih = i),
+        child: SizedBox(
+          height: 48,
+          child: Stack(
+            children: [
+              // Penanda menu aktif: batang kecil di tepi kiri.
+              Positioned(
+                left: 0,
+                top: 13,
+                bottom: 13,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: aktif ? 4 : 0,
+                  decoration: const BoxDecoration(
+                    color: AppColors.hijauTua,
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(4),
+                      bottomRight: Radius.circular(4),
+                    ),
+                  ),
+                ),
+              ),
+              Positioned.fill(
+                child: Padding(
+                  // Ikon selalu di posisi yang sama (tengah saat ramping).
+                  padding: const EdgeInsets.only(left: 19),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        m.ikon,
+                        size: 21,
+                        color: aktif
+                            ? AppColors.hijauGelap
+                            : AppColors.teksSekunder,
+                      ),
+                      if (teks) ...[
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Text(
+                            m.nama,
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14.5,
+                              fontWeight:
+                                  aktif ? FontWeight.w700 : FontWeight.w500,
+                              color: aktif
+                                  ? AppColors.hijauGelap
+                                  : AppColors.teksSekunder,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              )
             ],
           ),
         ),
       ),
     );
-  }
 
-  Widget _kartuPengguna() {
-    return ListenableBuilder(
-      listenable: StoreProfil.instance,
-      builder: (context, _) => _isiKartuPengguna(),
+    if (teks) return isi;
+    return Tooltip(
+      message: m.nama,
+      preferBelow: false,
+      waitDuration: const Duration(milliseconds: 250),
+      child: isi,
     );
   }
 
-  Widget _isiKartuPengguna() {
+  Widget _kartuPengguna(bool teks) {
+    return ListenableBuilder(
+      listenable: StoreProfil.instance,
+      builder: (context, _) => _isiKartuPengguna(teks),
+    );
+  }
+
+  Widget _avatar() {
+    return Container(
+      width: 40,
+      height: 40,
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        color: AppColors.hijauPastel,
+        shape: BoxShape.circle,
+      ),
+      child: Text(
+        DataContoh.namaDepan.substring(0, 1).toUpperCase(),
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w800,
+          color: AppColors.hijauGelap,
+        ),
+      ),
+    );
+  }
+
+  Widget _isiKartuPengguna(bool teks) {
+    if (!teks) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Tooltip(
+            message: DataContoh.namaLengkap,
+            preferBelow: false,
+            waitDuration: const Duration(milliseconds: 250),
+            child: Center(child: _avatar()),
+          ),
+          const SizedBox(height: 8),
+          Tooltip(
+            message: 'Keluar',
+            preferBelow: false,
+            waitDuration: const Duration(milliseconds: 250),
+            child: Material(
+              color: AppColors.krim,
+              borderRadius: BorderRadius.circular(14),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(14),
+                hoverColor: AppColors.hijauMuda,
+                onTap: _keluar,
+                child: const SizedBox(
+                  width: 40,
+                  height: 36,
+                  child: Icon(
+                    Icons.logout_rounded,
+                    size: 19,
+                    color: AppColors.teksSekunder,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
     return Material(
       color: AppColors.krim,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(22),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(
-                color: AppColors.hijauPastel,
-                shape: BoxShape.circle,
-              ),
-              child: Text(
-                DataContoh.namaDepan.substring(0, 1).toUpperCase(),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.hijauGelap,
-                ),
-              ),
-            ),
+            _avatar(),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -234,6 +413,8 @@ class _ShellWebState extends State<ShellWeb> {
                 children: [
                   Text(
                     DataContoh.namaLengkap,
+                    maxLines: 1,
+                    softWrap: false,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 14,
