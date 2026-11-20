@@ -140,6 +140,8 @@ class LaporanTidur {
     final kafein = Korelasi.kafein(entri);
     final layar = Korelasi.layar(entri);
     final aktivitas = Korelasi.aktivitas(entri);
+    final stres = Korelasi.stres(entri);
+    final suasana = Korelasi.suasana(entri);
 
     return LaporanTidur._(
       rentang: rentang,
@@ -153,6 +155,8 @@ class LaporanTidur {
         BarisPola('Kafein sore', kafein.ringkasan),
         BarisPola('Layar sebelum tidur', layar.ringkasan),
         BarisPola('Aktivitas fisik', aktivitas.ringkasan),
+        BarisPola('Tingkat stres', stres.ringkasan),
+        BarisPola('Suasana hati', suasana.ringkasan),
       ],
     );
   }

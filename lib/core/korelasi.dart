@@ -150,6 +150,71 @@ class Korelasi {
     );
   }
 
+  /// Tingkat stres: hari stres rendah (1-2) vs stres tinggi (4-5).
+  /// Catatan: stres ikut dihitung dalam rumus Sleep Score.
+  static HasilBanding stres(List<EntriTidur> r) {
+    final rendah = <int>[];
+    final tinggi = <int>[];
+    for (final e in r) {
+      if (e.stres <= 2) rendah.add(_skor(e));
+      if (e.stres >= 4) tinggi.add(_skor(e));
+    }
+    final a = _rata(rendah);
+    final b = _rata(tinggi);
+    String teks = _belumCukup;
+    if (a != null && b != null) {
+      final selisih = a - b;
+      if (selisih > 0) {
+        teks = 'Skor rata-rata $selisih poin lebih rendah pada hari dengan stres tinggi. '
+            'Stres ikut dihitung dalam rumus skor.';
+      } else if (selisih < 0) {
+        teks = 'Di catatanmu, hari stres tinggi belum terlihat punya skor lebih rendah.';
+      } else {
+        teks = 'Skor rata-rata sama di hari stres rendah dan stres tinggi.';
+      }
+    }
+    return HasilBanding(
+      label1: 'Stres rendah',
+      label2: 'Stres tinggi',
+      nilai1: a,
+      nilai2: b,
+      ringkasan: teks,
+    );
+  }
+
+  /// Suasana hati: hari positif (Tenang atau Semangat) vs Cemas.
+  /// Catatan: suasana hati TIDAK dihitung dalam rumus Sleep Score.
+  static HasilBanding suasana(List<EntriTidur> r) {
+    final positif = <int>[];
+    final cemas = <int>[];
+    for (final e in r) {
+      if (e.suasana == 'Tenang' || e.suasana == 'Semangat') {
+        positif.add(_skor(e));
+      }
+      if (e.suasana == 'Cemas') cemas.add(_skor(e));
+    }
+    final a = _rata(positif);
+    final b = _rata(cemas);
+    String teks = _belumCukup;
+    if (a != null && b != null) {
+      final selisih = a - b;
+      if (selisih > 0) {
+        teks = 'Hari dengan suasana Tenang atau Semangat punya skor $selisih poin lebih tinggi daripada hari Cemas.';
+      } else if (selisih < 0) {
+        teks = 'Di catatanmu, hari Cemas belum terlihat punya skor lebih rendah.';
+      } else {
+        teks = 'Skor rata-rata sama di hari positif dan hari Cemas.';
+      }
+    }
+    return HasilBanding(
+      label1: 'Positif',
+      label2: 'Cemas',
+      nilai1: a,
+      nilai2: b,
+      ringkasan: teks,
+    );
+  }
+
   /// Titik untuk grafik "Jam mulai tidur dan Sleep Score".
   static List<TitikSebar> titik(List<EntriTidur> r) {
     return r.map((e) => TitikSebar(_menitTidur(e), _skor(e))).toList();

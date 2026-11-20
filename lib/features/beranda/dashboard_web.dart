@@ -1,9 +1,11 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../core/store_tema.dart';
 import '../../core/app_colors.dart';
 import '../../core/data_contoh.dart';
 import '../../core/format_tanggal.dart';
 import '../../shared/kartu_somniva.dart';
+import '../../shared/logo_somniva.dart';
 import '../../shared/tombol_somniva.dart';
 import '../../core/entri_tidur.dart';
 import '../../core/korelasi.dart';
@@ -37,21 +39,25 @@ class DashboardWeb extends StatelessWidget {
     final statistik = <Widget>[
       _KartuStat(
         label: 'Sleep Score semalam',
+        ikon: Icons.dark_mode_outlined,
         nilai: '$skor',
         ket: '${FormatTanggal.labelSkor(skor)} · $selisih',
       ),
       _KartuStat(
         label: 'Durasi tidur',
+        ikon: Icons.schedule_rounded,
         nilai: e.durasiTeks,
         ket: e.rentangTeks,
       ),
       _KartuStat(
         label: 'Sleep Debt',
+        ikon: Icons.calendar_today_outlined,
         nilai: EntriTidur.formatDurasi(StoreTidur.instance.sleepDebtMenit),
         ket: DataContoh.sleepDebtKet,
       ),
       const _KartuStat(
         label: 'Konsistensi jadwal',
+        ikon: Icons.show_chart_rounded,
         nilai: '${DataContoh.konsistensi}%',
         ket: DataContoh.konsistensiKet,
       ),
@@ -108,40 +114,51 @@ class DashboardWeb extends StatelessWidget {
         final kartuIdeal = KartuSomniva(
           warna: AppColors.hijauPastel,
           radius: 28,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Stack(
             children: [
-              const Text(
-                'Tidur ideal malam ini',
-                style: TextStyle(
-                  fontSize: 13.5,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.hijauGelap,
-                ),
+              const Positioned(
+                right: -4,
+                top: -8,
+                width: 120,
+                height: 120,
+                child: CustomPaint(painter: _HiasanBulan()),
               ),
-              const SizedBox(height: 6),
-              Text(
-                DataContoh.tidurIdeal,
-                style: const TextStyle(
-                  fontSize: 54,
-                  fontWeight: FontWeight.w800,
-                  height: 1.1,
-                  color: AppColors.hijauGelap,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Bangun ${DataContoh.bangunIdeal} · target ${DataContoh.targetJam} jam',
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.hijauGelap,
-                ),
-              ),
-              const SizedBox(height: 18),
-              TombolUtama(
-                teks: 'Lihat rekomendasi',
-                onTap: () => onPindah(4), // 4 = Rekomendasi Tidur
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Tidur ideal malam ini',
+                    style: TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.hijauGelap,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    DataContoh.tidurIdeal,
+                    style: const TextStyle(
+                      fontSize: 54,
+                      fontWeight: FontWeight.w800,
+                      height: 1.1,
+                      color: AppColors.hijauGelap,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Bangun ${DataContoh.bangunIdeal} · target ${DataContoh.targetJam} jam',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.hijauGelap,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  TombolUtama(
+                    teks: 'Lihat rekomendasi',
+                    onTap: () => onPindah(4), // 4 = Rekomendasi Tidur
+                  ),
+                ],
               ),
             ],
           ),
@@ -174,24 +191,35 @@ class DashboardWeb extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: StoreProgram.instance.hariAktif / StoreProgram.total,
-                  minHeight: 8,
-                  backgroundColor: AppColors.hijauMuda,
-                  valueColor:
-                      const AlwaysStoppedAnimation(AppColors.hijauSedang),
-                ),
+              _BatangProgram(
+                hari: StoreProgram.instance.hariAktif,
+                total: StoreProgram.total,
               ),
-              const SizedBox(height: 12),
-              Text(
-                'Hari ini: ${StoreProgram.instance.judulHariIni.toLowerCase()}',
-                style: const TextStyle(
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.hijauGelap,
-                ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Container(
+                    width: 30,
+                    height: 30,
+                    decoration: const BoxDecoration(
+                      color: AppColors.hijauMuda,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.check_rounded,
+                        size: 17, color: AppColors.hijauTua),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Hari ini: ${StoreProgram.instance.judulHariIni.toLowerCase()}',
+                      style: const TextStyle(
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.hijauGelap,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -215,18 +243,30 @@ class DashboardWeb extends StatelessWidget {
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _judulTemuan(),
-                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        _ikonTemuan(),
+                        const SizedBox(width: 14),
+                        _judulTemuan(),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
                     _isiTemuan(),
+                    const SizedBox(height: 12),
+                    _bandingTemuan(),
                     const SizedBox(height: 16),
                     _tombolKorelasi(context),
                   ],
                 )
               : Row(
                   children: [
+                    _ikonTemuan(),
+                    const SizedBox(width: 18),
                     _judulTemuan(),
                     const SizedBox(width: 20),
                     Expanded(child: _isiTemuan()),
+                    const SizedBox(width: 20),
+                    _bandingTemuan(),
                     const SizedBox(width: 20),
                     _tombolKorelasi(context),
                   ],
@@ -288,13 +328,20 @@ class DashboardWeb extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                FormatTanggal.panjang(sekarang),
-                style: const TextStyle(
-                  fontSize: 14.5,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.teksSekunder,
-                ),
+              Row(
+                children: [
+                  const Icon(Icons.wb_sunny_outlined,
+                      size: 16, color: AppColors.hijauSedang),
+                  const SizedBox(width: 6),
+                  Text(
+                    FormatTanggal.panjang(sekarang),
+                    style: const TextStyle(
+                      fontSize: 14.5,
+                      fontWeight: FontWeight.w500,
+                      color: AppColors.teksSekunder,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 2),
               Text(
@@ -322,7 +369,8 @@ class DashboardWeb extends StatelessWidget {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.hijauTua,
               foregroundColor: Colors.white,
-              elevation: 0,
+              elevation: 6,
+              shadowColor: const Color(0x552F3A2B),
               padding: const EdgeInsets.symmetric(horizontal: 26),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(25),
@@ -336,14 +384,14 @@ class DashboardWeb extends StatelessWidget {
         ),
         const SizedBox(width: 12),
         Material(
-          color: AppColors.krim,
+          color: AppColors.hijauPastel,
           shape: const CircleBorder(),
           child: InkWell(
             customBorder: const CircleBorder(),
             onTap: StoreTema.instance.balik,
             child: const SizedBox(
-              width: 46,
-              height: 46,
+              width: 50,
+              height: 50,
               child: Icon(Icons.dark_mode_outlined,
                   size: 20, color: AppColors.hijauGelap),
             ),
@@ -361,6 +409,55 @@ class DashboardWeb extends StatelessWidget {
     }
     return IntrinsicHeight(
       child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: isi),
+    );
+  }
+
+  Widget _ikonTemuan() => Container(
+        width: 56,
+        height: 56,
+        decoration: const BoxDecoration(
+          color: AppColors.hijauPastel,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(Icons.lightbulb_outline_rounded,
+            size: 26, color: AppColors.hijauTua),
+      );
+
+  /// Dua batang kecil: skor rata-rata sebelum vs setelah 15:00 (kafein).
+  /// Hanya tampil kalau catatan sudah cukup untuk dibandingkan.
+  Widget _bandingTemuan() {
+    final k = Korelasi.kafein(StoreTidur.instance.riwayat);
+    if (!k.cukup) return const SizedBox.shrink();
+    Widget baris(int v, Color warna) => Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80 * v / 100,
+              height: 7,
+              decoration: BoxDecoration(
+                color: warna,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '$v',
+              style: const TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w500,
+                color: AppColors.teksSekunder,
+              ),
+            ),
+          ],
+        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        baris(k.nilai1!, AppColors.hijauSedang),
+        const SizedBox(height: 8),
+        baris(k.nilai2!, AppColors.hijauTua),
+      ],
     );
   }
 
@@ -409,7 +506,9 @@ class _KartuStat extends StatelessWidget {
   final String label;
   final String nilai;
   final String ket;
+  final IconData ikon;
   const _KartuStat({
+    required this.ikon,
     required this.label,
     required this.nilai,
     required this.ket,
@@ -423,19 +522,37 @@ class _KartuStat extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w500,
-              color: AppColors.teksSekunder,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.teksSekunder,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                width: 38,
+                height: 38,
+                decoration: const BoxDecoration(
+                  color: AppColors.hijauMuda,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(ikon, size: 19, color: AppColors.hijauTua),
+              ),
+            ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             nilai,
             style: const TextStyle(
-              fontSize: 36,
+              fontSize: 40,
               fontWeight: FontWeight.w800,
               height: 1.1,
               color: AppColors.hijauGelap,
@@ -454,4 +571,75 @@ class _KartuStat extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Batang program: satu potongan per hari, terisi sampai hari aktif.
+class _BatangProgram extends StatelessWidget {
+  final int hari;
+  final int total;
+  const _BatangProgram({required this.hari, required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (var i = 0; i < total; i++) ...[
+          if (i > 0) const SizedBox(width: 5),
+          Expanded(
+            child: Container(
+              height: 8,
+              decoration: BoxDecoration(
+                color: i < hari ? AppColors.hijauTua : AppColors.hijauMuda,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+/// Hiasan di kartu "Tidur ideal": lingkaran lembut, bulan sabit, dan kilau.
+class _HiasanBulan extends CustomPainter {
+  const _HiasanBulan();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final pusat = Offset(size.width * 0.55, size.height * 0.52);
+    canvas.drawCircle(
+      pusat,
+      size.width * 0.46,
+      Paint()..color = AppColors.hijauMuda.withAlpha(170),
+    );
+    canvas.drawPath(
+      bulanSabit(pusat, size.width * 0.27),
+      Paint()..color = AppColors.hijauSedang.withAlpha(120),
+    );
+    void kilau(Offset p, double r) {
+      final path = Path();
+      for (var i = 0; i < 8; i++) {
+        final a = -3.14159265 / 2 + i * 3.14159265 / 4;
+        final jr = i.isEven ? r : r * 0.3;
+        final t = p + Offset(_cos(a), _sin(a)) * jr;
+        if (i == 0) {
+          path.moveTo(t.dx, t.dy);
+        } else {
+          path.lineTo(t.dx, t.dy);
+        }
+      }
+      path.close();
+      canvas.drawPath(
+          path, Paint()..color = AppColors.hijauSedang.withAlpha(150));
+    }
+
+    kilau(Offset(size.width * 0.12, size.height * 0.12), 5);
+    kilau(Offset(size.width * 0.9, size.height * 0.9), 4);
+  }
+
+  static double _cos(double a) => math.cos(a);
+  static double _sin(double a) => math.sin(a);
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

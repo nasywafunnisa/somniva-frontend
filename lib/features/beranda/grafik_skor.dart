@@ -75,6 +75,27 @@ class _GrafikPainter extends CustomPainter {
       _teks(canvas, '$g', Offset(kiri - 12, y), kanan: true);
     }
 
+    // Area lembut di bawah garis
+    final area = Path()..moveTo(xDari(0), yDari(60));
+    for (var i = 0; i < nilai.length; i++) {
+      area.lineTo(xDari(i), yDari(nilai[i]));
+    }
+    area
+      ..lineTo(xDari(nilai.length - 1), yDari(60))
+      ..close();
+    canvas.drawPath(
+      area,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            AppColors.hijauSedang.withAlpha(70),
+            AppColors.hijauSedang.withAlpha(0),
+          ],
+        ).createShader(Rect.fromLTWH(kiri, atas, plotW, plotH)),
+    );
+
     // Garis skor
     final jalur = Path();
     for (var i = 0; i < nilai.length; i++) {
@@ -90,7 +111,7 @@ class _GrafikPainter extends CustomPainter {
       Paint()
         ..color = AppColors.hijauSedang
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3.5
+        ..strokeWidth = 3
         ..strokeJoin = StrokeJoin.round
         ..strokeCap = StrokeCap.round,
     );
@@ -100,6 +121,7 @@ class _GrafikPainter extends CustomPainter {
       final p = Offset(xDari(i), yDari(nilai[i]));
       final terakhir = i == nilai.length - 1;
       if (terakhir) {
+        canvas.drawCircle(p, 14, Paint()..color = AppColors.hijauTua.withAlpha(45));
         canvas.drawCircle(p, 8, Paint()..color = AppColors.hijauTua);
       } else {
         canvas.drawCircle(p, 7, Paint()..color = Colors.white);

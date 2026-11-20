@@ -26,16 +26,32 @@ class PolaWeb extends StatelessWidget {
       judul: 'Kafein sore',
       hasil: Korelasi.kafein(r),
       rapat: true,
+      warna2: AppColors.hijauTua,
     );
     final layar = KartuKorelasi(
       judul: 'Layar sebelum tidur',
       hasil: Korelasi.layar(r),
       rapat: true,
+      warna2: AppColors.hijauTua,
     );
     final aktivitas = KartuKorelasi(
       judul: 'Aktivitas fisik',
       hasil: Korelasi.aktivitas(r),
       rapat: true,
+      warna2: AppColors.hijauTua,
+    );
+
+    final stres = KartuKorelasi(
+      judul: 'Tingkat stres',
+      hasil: Korelasi.stres(r),
+      rapat: true,
+      warna2: AppColors.hijauTua,
+    );
+    final suasana = KartuKorelasi(
+      judul: 'Suasana hati',
+      hasil: Korelasi.suasana(r),
+      rapat: true,
+      warna2: AppColors.hijauTua,
     );
 
     final sebar = KartuSomniva(
@@ -81,6 +97,10 @@ class PolaWeb extends StatelessWidget {
               layar,
               const SizedBox(height: 16),
               aktivitas,
+              const SizedBox(height: 16),
+              stres,
+              const SizedBox(height: 16),
+              suasana,
             ] else
               IntrinsicHeight(
                 child: Row(
@@ -94,11 +114,26 @@ class PolaWeb extends StatelessWidget {
                   ],
                 ),
               ),
+            if (!sempit) ...[
+              const SizedBox(height: 18),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: stres),
+                    const SizedBox(width: 18),
+                    Expanded(child: suasana),
+                    const SizedBox(width: 18),
+                    const Expanded(child: SizedBox.shrink()),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 18),
             sebar,
             const SizedBox(height: 14),
             const Text(
-              'Ini hubungan statistik dari catatanmu, bukan sebab-akibat atau diagnosis.',
+              'Ini hubungan statistik dari catatanmu, bukan sebab-akibat atau diagnosis. Stres ikut dihitung dalam rumus Sleep Score, sedangkan suasana hati tidak.',
               style: TextStyle(
                 fontSize: 13.5,
                 fontWeight: FontWeight.w500,

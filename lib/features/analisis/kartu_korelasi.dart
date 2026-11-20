@@ -11,11 +11,15 @@ class KartuKorelasi extends StatelessWidget {
   /// true = ukuran lebih rapat (dipakai berjajar tiga di web).
   final bool rapat;
 
+  /// Warna batang kedua. Bawaan tetap cokelat seperti sebelumnya.
+  final Color warna2;
+
   const KartuKorelasi({
     super.key,
     required this.judul,
     required this.hasil,
     this.rapat = false,
+    this.warna2 = AppColors.cokelat,
   });
 
   @override
@@ -45,7 +49,7 @@ class KartuKorelasi extends StatelessWidget {
           _Baris(
             label: hasil.label2,
             nilai: hasil.nilai2,
-            warna: AppColors.cokelat,
+            warna: warna2,
             rapat: rapat,
           ),
           const SizedBox(height: 14),

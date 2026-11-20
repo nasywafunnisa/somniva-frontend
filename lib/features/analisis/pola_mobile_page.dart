@@ -35,16 +35,31 @@ class PolaMobilePage extends StatelessWidget {
                             KartuKorelasi(
                               judul: 'Kafein sore',
                               hasil: Korelasi.kafein(r),
+                              warna2: AppColors.hijauTua,
                             ),
                             const SizedBox(height: 14),
                             KartuKorelasi(
                               judul: 'Layar sebelum tidur',
                               hasil: Korelasi.layar(r),
+                              warna2: AppColors.hijauTua,
                             ),
                             const SizedBox(height: 14),
                             KartuKorelasi(
                               judul: 'Aktivitas fisik',
                               hasil: Korelasi.aktivitas(r),
+                              warna2: AppColors.hijauTua,
+                            ),
+                            const SizedBox(height: 14),
+                            KartuKorelasi(
+                              judul: 'Tingkat stres',
+                              hasil: Korelasi.stres(r),
+                              warna2: AppColors.hijauTua,
+                            ),
+                            const SizedBox(height: 14),
+                            KartuKorelasi(
+                              judul: 'Suasana hati',
+                              hasil: Korelasi.suasana(r),
+                              warna2: AppColors.hijauTua,
                             ),
                             const SizedBox(height: 14),
                             const Text(
